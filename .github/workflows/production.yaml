@@ -66,7 +66,7 @@ jobs:
           with:
             bucket: skillmatch
             dist-folder: ./dist/skillmatch/browser
-            bucket-region: us-east-1
+            bucket-region: eu-north-1
 
         - name: Output URL
           run: echo "Live URL:${{steps.deploy.outputs.website-url}}"
