@@ -1,80 +1,72 @@
-name: CI/CD Pipeline
-
+name: Events Demo 1
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    types:
+      - opened
   workflow_dispatch:
+env:
+  MyPAss: 1234
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    environment: testing
     steps:
-      - name: Checkout Code
+      - name: Get Code
         uses: actions/checkout@v4
       - name: Cache Dependencies
         uses: actions/cache@v4
         with:
-            path: ~/.npm
-            key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install Dependencies
-        run: npm ci
-      - name: Run Tests
-        run: npm run test
-
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Cache Dependencies
-        uses: actions/cache@v3
-        with:
-            path: ~/.npm
-            key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json')}}
       - name: Install Dependencies
         run: npm install
-      - name: Build Application
+      - name: Build Code
         run: npm run build
-      - name: Upload Build Artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: dist-files
-            path: dist
-
-      - name: Rename index file
-        run: |
-          cd ./dist/skillmatch/browser
-          cp index.csr.html index.html
+          name: dist-files
+          path: dist
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v4
+     runs-on: ubuntu-latest
+     needs: build
+     steps:
+        - name: Get Code
+          uses: actions/checkout@v4
 
-      - name: Get Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
+        - name: Get Build files
+          uses: actions/download-artifact@v4
+          with:
             name: dist-files
             path: ./dist
-      - name: Output Contents
-        run: ls
- 
-      - name: Deploy to S3
-        id: deploy
-        uses: ./.github/actions
-        env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        with:
-            bucket: skillmatchjoshmith
+
+        - name: Output Contents
+          run: |
+            echo "Root directory:"
+            ls -la
+            echo "Dist directory:"
+            ls -la ./dist
+        
+        - name: Rename index file
+          run: |
+            cd ./dist/skills-match/browser
+            cp index.csr.html index.html
+        
+        - name: Deploy
+          id: deploy
+          uses: ./.github/actions
+          env:
+            AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+            AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}} 
+          with:
+            bucket: skillmatch
             dist-folder: ./dist/skillmatch/browser
-            bucket-region: us-east-1
-      - name: output URL
-        run: echo "Deployed to:${{steps.deploy.outputs.website-url}}"
+            bucket-region: eu-east-1
+
+        - name: Output URL
+          run: echo "Live URL:${{steps.deploy.outputs.website-url}}"
