@@ -34,14 +34,14 @@ export class ChatbotComponent implements OnInit {
   chatMessages: ChatMessage[] = [];
   isLoading: boolean = false;
   sidebarItems = [
-    { name: 'Dashboard', active: false },
-    { name: 'Company Profile', active: false },
-    { name: 'Job Postings', active: false },
-    { name: 'Candidate Matches', active: false },
-    { name: 'Applications', active: false },
-    { name: 'Interviews', active: false },
-    { name: 'AI Assistance', active: true },
-    { name: 'Analytics', active: false }
+    { name: 'Dashboard', route:'/employer-dashboard', active: false },
+    { name: 'Company Profile', route:'/profile', active: false },
+    { name: 'Job Postings', route:'/profile', active: false },
+    { name: 'Candidate Matches', route:'/profile', active: false },
+    { name: 'Applications', route:'/profile', active: false },
+    { name: 'Interviews', route:'/apply', active: false },
+    { name: 'AI Assistance', route:'/chatbot', active: true },
+    { name: 'Analytics', route:'/analytics', active: false }
   ];
   
   constructor() { }

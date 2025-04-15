@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 
 interface SkillData {
   name: string;
@@ -7,7 +9,7 @@ interface SkillData {
 
 @Component({
   selector: 'app-analytics',
-  imports: [],
+  imports: [CommonModule, RouterModule],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.css'
 })
@@ -32,13 +34,16 @@ export class AnalyticsComponent implements OnInit {
     values: ['$70k', '$85k', '$105k', '$125k', '$140k', '$170k']
   };
 
-  constructor() { }
+  constructor(
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
   }
 
   // Method for navigating to different sections
   navigate(section: string): void {
+    this.router.navigate(['/home']);
     console.log(`Navigating to ${section}`);
     // Implement actual navigation logic here
   }

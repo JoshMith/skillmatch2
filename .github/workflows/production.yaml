@@ -46,6 +46,11 @@ jobs:
             name: dist-files
             path: dist
 
+      - name: Rename index file
+        run: |
+          cd ./dist/skillmatch/browser
+          cp index.csr.html index.html
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -69,7 +74,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
             bucket: skillmatchjoshmith
-            dist-folder: ./dist
+            dist-folder: ./dist/skillmatch/browser
             bucket-region: us-east-1
       - name: output URL
         run: echo "Deployed to:${{steps.deploy.outputs.website-url}}"
