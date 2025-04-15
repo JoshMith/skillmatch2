@@ -54,7 +54,7 @@ jobs:
         
         - name: Rename index file
           run: |
-            cd ./dist/skills-match/browser
+            cd ./dist/skillmatch/browser
             cp index.csr.html index.html
         
         - name: Deploy
