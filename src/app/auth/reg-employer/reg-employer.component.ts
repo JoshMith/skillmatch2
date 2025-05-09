@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
@@ -13,10 +15,30 @@ import { Router } from '@angular/router';
   styleUrl: './reg-employer.component.css'
 })
 export class RegEmployerComponent implements OnInit {
+  
+  constructor(
+    private router: Router,
+    private register: AuthService
+  ) { }
+
+  private fb = inject(FormBuilder)
 
 
-  signupForm!: FormGroup;
+
+
+  signupForm = this.fb.group({
+    companyName: ['', Validators.required],
+    industrY: ['', Validators.required],
+    contactName: ['', Validators.required],
+    businessName: ['', Validators.required],
+    companySize: ['', Validators.required],
+    password: ['', Validators.required],
+    termsAccepted: ['', Validators.required]
+  })
+
   userType: 'jobSeeker' | 'employer' = 'employer';
+  errorMessage =''
+  successMessage = '';
 
   // Industry options
   industries: string[] = [
@@ -43,25 +65,9 @@ export class RegEmployerComponent implements OnInit {
     '1000+ employees'
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router
-  ) { }
 
   ngOnInit(): void {
-    this.initForm();
-  }
-
-  initForm(): void {
-    this.signupForm = this.fb.group({
-      companyName: ['', [Validators.required]],
-      industry: ['', [Validators.required]],
-      contactName: ['', [Validators.required]],
-      businessEmail: ['', [Validators.required, Validators.email]],
-      companySize: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      termsAccepted: [false, Validators.requiredTrue]
-    });
+    this.onSubmit()
   }
 
   setUserType(type: 'jobSeeker' | 'employer'): void {
@@ -75,6 +81,12 @@ export class RegEmployerComponent implements OnInit {
 
 
     onSubmit(): void {
+      if (this.signupForm.invalid) {
+        this.errorMessage = 'Please fill in all required fields.';
+        console.log('Please fill in all required fields.');
+        return;
+      }
+
       if(this.signupForm.valid) {
       // Handle form submission
       console.log('Form submitted', {
@@ -85,8 +97,18 @@ export class RegEmployerComponent implements OnInit {
       // Here you would typically call your auth service
       // this.authService.registerEmployer(this.signupForm.value)
 
-      // For demo purposes, just navigate to home
-      // this.router.navigate(['/employer/dashboard']);
+      this.register.registerEmployer(this.signupForm.value).subscribe({
+        next: (response) => {
+          this.successMessage = 'Registration successful!';
+          console.log('Registration successful', response);
+          this.router.navigate(['/employer-dashboard']);
+        },
+        error: (error) => {
+          this.errorMessage = 'Registration failed. Please try again.';
+          console.error('Registration failed', error);
+        }
+      });
+
     } else {
       // Mark all form controls as touched to trigger validation messages
       Object.keys(this.signupForm.controls).forEach(key => {
